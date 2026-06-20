@@ -60,6 +60,15 @@ const home = process.env.HOME || '';
 // --- Directorio (relativo a $HOME con ~) ---
 let dir = cwd;
 if (home && dir.startsWith(home)) dir = '~' + dir.slice(home.length);
+// ponytail: acorta rutas largas a ~/…/<carpeta> para que la línea no desborde
+// el ancho del terminal (el desbordamiento envuelve y encima un texto sobre otro).
+const DIR_MAX = CFG.dirMaxLen || 28;
+if (dir.length > DIR_MAX) {
+  let base = dir.slice(dir.lastIndexOf('/') + 1);
+  if (base.length > DIR_MAX) base = base.slice(0, DIR_MAX - 1) + '…';
+  const head = dir.startsWith('~') ? '~/…/' : '…/';
+  dir = head + base;
+}
 const dirSeg = `${c.cyan}📁 ${dir}${c.reset}`;
 
 // --- Rama git (verde si limpio, amarillo si hay cambios) ---
@@ -134,11 +143,12 @@ if (CFG.tokens && data.transcript_path) {
       } catch {}
     }
     if (usage) {
+      // Ocupación real del contexto = entrada efectiva (no-cacheada) + caché.
+      // El output del turno actual NO ocupa contexto todavía → se excluye.
       const ctx =
         (usage.input_tokens || 0) +
         (usage.cache_creation_input_tokens || 0) +
-        (usage.cache_read_input_tokens || 0) +
-        (usage.output_tokens || 0);
+        (usage.cache_read_input_tokens || 0);
       const pct = Math.round((ctx / CONTEXT_LIMIT) * 100);
       // Color según qué tan lleno está el contexto
       const col = pct >= 90 ? c.red : pct >= 70 ? c.yellow : c.green;
@@ -244,8 +254,9 @@ let usageSeg = '';
       dt.getMonth() === nd.getMonth() &&
       dt.getDate() === nd.getDate();
     const days = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
-    const when = sameDay ? clock : `${days[dt.getDay()]} ${clock}`;
-    return ` ${c.dim}↺${cd} (${when})${c.reset}`;
+    // Hora absoluta solo si el reset NO es hoy (si es hoy, el countdown ya basta).
+    const when = sameDay ? '' : ` (${days[dt.getDay()]} ${clock})`;
+    return ` ${c.dim}↺ ${cd}${when}${c.reset}`;
   }
   const segs = [];
   if (CFG.usage5h && typeof cache.five_hour === 'number') {
