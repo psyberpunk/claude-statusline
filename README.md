@@ -4,6 +4,8 @@ Una status line personalizada y rica en información para [Claude Code](https://
 
 Muestra en una sola línea: directorio, estado de git, modelo, uso de contexto, costo de la sesión, líneas modificadas, **límites de uso de tu suscripción (5h / 7 días) con cuenta regresiva y hora exacta de reset**, desglose por modelo y reloj.
 
+![claude-statusline](assets/statusline.svg)
+
 ```
 📁 ~/mi-proyecto | 🌿 main* ↑2 ↓1 📦1 | 🤖 Opus 4.8 | 🧮 46.1k (23%) | 💰 $0.12 | 📝 +123/-45 | ⏳ 5h 6% ↺2h12m (12:19) 📆 7d 3% ↺4h53m (14:59) 🧠 O7%/S2% | 🕐 10:10
 ```
@@ -57,6 +59,15 @@ Reinicia Claude Code (o empieza una nueva interacción) y verás la status line 
      }
    }
    ```
+
+## Desinstalación
+
+```bash
+./uninstall.sh
+```
+
+Elimina `statusline.js`, `usage-fetch.js` y `usage-cache.json` de `~/.claude/`, y quita la
+clave `statusLine` de tu `settings.json` (conservando el resto de tu configuración).
 
 ## Cómo funciona el uso de la suscripción
 
