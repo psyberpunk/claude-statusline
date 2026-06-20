@@ -42,7 +42,7 @@ cd claude-statusline
 ```
 
 El instalador:
-1. Copia `statusline.js` y `usage-fetch.js` a `~/.claude/`.
+1. Copia `statusline.js`, `usage-fetch.js` y `configure.js` a `~/.claude/`.
 2. Agrega (o fusiona) la configuración `statusLine` en `~/.claude/settings.json`.
 
 Reinicia Claude Code (o empieza una nueva interacción) y verás la status line abajo.
@@ -60,14 +60,59 @@ Reinicia Claude Code (o empieza una nueva interacción) y verás la status line 
    }
    ```
 
+## Configuración (menú interactivo)
+
+Para **activar o desactivar** cualquier segmento sin editar código, usa el menú:
+
+```bash
+node ~/.claude/configure.js
+```
+
+```
+  claude-statusline — configuración
+  Activa/desactiva los segmentos de tu status line.
+
+  › [x] 📁  Directorio actual
+    [x] 🌿  Rama git (+ ahead/behind, stash)
+    [x] 🤖  Modelo de Claude
+    [x] 🧮  Tokens de contexto (% de ventana)
+    [x] 💰  Costo de la sesión (USD)
+    [x] 📝  Líneas modificadas (+/-)
+    [x] ⏳  Límite de uso 5h (+ reset)
+    [x] 📆  Límite de uso semanal 7d (+ reset)
+    [x] 🧠  Desglose Opus/Sonnet
+    [x] 🕐  Reloj (hora local)
+    [1M] 🪟  Ventana de contexto (Espacio cicla 1M/200k)
+
+  ↑/↓ mover   Espacio/Enter alternar   a todo   n nada   g guardar   q salir
+```
+
+### Controles
+
+| Tecla | Acción |
+|-------|--------|
+| `↑` / `↓` (o `k` / `j`) | Mover el cursor |
+| `Espacio` / `Enter` | Activar/desactivar el segmento seleccionado |
+| `a` | Activar **todos** los segmentos |
+| `n` | Desactivar **todos** los segmentos |
+| `g` | **Guardar** y salir |
+| `q` | Salir **sin guardar** |
+
+La última fila (`🪟 Ventana de contexto`) cicla entre **1M** y **200k** con `Espacio` —
+úsala según la ventana de contexto de tu modelo (afecta el `%` del segmento de tokens 🧮).
+
+Los cambios se guardan en `~/.claude/statusline-config.json` y aplican en el siguiente render.
+Si ese archivo no existe, se muestran **todos** los segmentos por defecto.
+
 ## Desinstalación
 
 ```bash
 ./uninstall.sh
 ```
 
-Elimina `statusline.js`, `usage-fetch.js` y `usage-cache.json` de `~/.claude/`, y quita la
-clave `statusLine` de tu `settings.json` (conservando el resto de tu configuración).
+Elimina `statusline.js`, `usage-fetch.js`, `configure.js`, `usage-cache.json` y
+`statusline-config.json` de `~/.claude/`, y quita la clave `statusLine` de tu `settings.json`
+(conservando el resto de tu configuración).
 
 ## Cómo funciona el uso de la suscripción
 

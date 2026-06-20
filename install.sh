@@ -20,7 +20,8 @@ mkdir -p "$CLAUDE_DIR"
 # 2. Copiar scripts
 cp "$SCRIPT_DIR/statusline.js" "$CLAUDE_DIR/statusline.js"
 cp "$SCRIPT_DIR/usage-fetch.js" "$CLAUDE_DIR/usage-fetch.js"
-echo "    ✓ statusline.js y usage-fetch.js copiados"
+cp "$SCRIPT_DIR/configure.js" "$CLAUDE_DIR/configure.js"
+echo "    ✓ statusline.js, usage-fetch.js y configure.js copiados"
 
 # 3. Fusionar la config en settings.json (sin perder lo existente)
 node - "$SETTINGS" <<'NODE'
@@ -34,3 +35,4 @@ console.log('    ✓ statusLine registrada en ' + file);
 NODE
 
 echo "==> Listo. Reinicia Claude Code (o inicia una nueva interacción) para verla."
+echo "    Para activar/desactivar segmentos:  node $CLAUDE_DIR/configure.js"

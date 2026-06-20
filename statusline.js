@@ -15,6 +15,30 @@ const c = {
   red: '\x1b[31m',
 };
 
+// --- Configuración: qué segmentos mostrar (editable con el menú: configure.js) ---
+const CONFIG_DEFAULTS = {
+  directory: true,
+  git: true,
+  model: true,
+  tokens: true,
+  cost: true,
+  lines: true,
+  usage5h: true,
+  usage7d: true,
+  modelBreakdown: true,
+  clock: true,
+  contextLimit: 1000000,
+};
+let CFG = { ...CONFIG_DEFAULTS };
+try {
+  const _home = process.env.HOME || require('os').homedir();
+  const _cfgFile = require('path').join(_home, '.claude', 'statusline-config.json');
+  const _loaded = JSON.parse(require('fs').readFileSync(_cfgFile, 'utf8'));
+  CFG = { ...CONFIG_DEFAULTS, ..._loaded };
+} catch {
+  // sin archivo de config → se usan los valores por defecto (todo activo)
+}
+
 function readStdin() {
   try {
     return require('fs').readFileSync(0, 'utf8');
@@ -40,7 +64,7 @@ const dirSeg = `${c.cyan}📁 ${dir}${c.reset}`;
 
 // --- Rama git (verde si limpio, amarillo si hay cambios) ---
 let gitSeg = '';
-try {
+if (CFG.git) try {
   const branch = execSync('git rev-parse --abbrev-ref HEAD', {
     cwd, stdio: ['ignore', 'pipe', 'ignore'],
   }).toString().trim();
@@ -87,12 +111,12 @@ const modelSeg = `${c.magenta}🤖 ${model}${c.reset}`;
 // --- Consumo de tokens (tamaño actual del contexto) ---
 // Se lee del transcript: el último mensaje del asistente con `usage`.
 let tokSeg = '';
-const CONTEXT_LIMIT = 1000000; // ventana de contexto de referencia (1M)
+const CONTEXT_LIMIT = CFG.contextLimit || 1000000; // ventana de contexto de referencia
 function fmtTokens(n) {
   if (n >= 1000) return (n / 1000).toFixed(1) + 'k';
   return String(n);
 }
-if (data.transcript_path) {
+if (CFG.tokens && data.transcript_path) {
   try {
     const fs = require('fs');
     const lines = fs.readFileSync(data.transcript_path, 'utf8').split('\n');
@@ -153,6 +177,8 @@ const clockSeg = `${c.dim}🕐 ${_pad(_now.getHours())}:${_pad(_now.getMinutes()
 // Si el caché está viejo (>5 min), se dispara un refresco detached SIN bloquear.
 let usageSeg = '';
 (function () {
+  // Si los tres sub-segmentos de uso están desactivados, no leemos caché ni hacemos fetch.
+  if (!CFG.usage5h && !CFG.usage7d && !CFG.modelBreakdown) return;
   const fs = require('fs');
   const path = require('path');
   const home = process.env.HOME || require('os').homedir();
@@ -222,41 +248,43 @@ let usageSeg = '';
     return ` ${c.dim}↺${cd} (${when})${c.reset}`;
   }
   const segs = [];
-  if (typeof cache.five_hour === 'number') {
+  if (CFG.usage5h && typeof cache.five_hour === 'number') {
     segs.push(
       `${colFor(cache.five_hour)}⏳ 5h ${fmtPct(cache.five_hour)}${c.reset}` +
         fmtReset(cache.five_hour_resets_at)
     );
   }
-  if (typeof cache.seven_day === 'number') {
+  if (CFG.usage7d && typeof cache.seven_day === 'number') {
     segs.push(
       `${colFor(cache.seven_day)}📆 7d ${fmtPct(cache.seven_day)}${c.reset}` +
         fmtReset(cache.seven_day_resets_at)
     );
   }
   // Desglose semanal por modelo (Opus / Sonnet)
-  const models = [];
-  if (typeof cache.seven_day_opus === 'number') {
-    models.push(`${colFor(cache.seven_day_opus)}O${fmtPct(cache.seven_day_opus)}${c.reset}`);
-  }
-  if (typeof cache.seven_day_sonnet === 'number') {
-    models.push(`${colFor(cache.seven_day_sonnet)}S${fmtPct(cache.seven_day_sonnet)}${c.reset}`);
-  }
-  if (models.length) {
-    segs.push(`${c.dim}🧠 ${c.reset}` + models.join(`${c.dim}/${c.reset}`));
+  if (CFG.modelBreakdown) {
+    const models = [];
+    if (typeof cache.seven_day_opus === 'number') {
+      models.push(`${colFor(cache.seven_day_opus)}O${fmtPct(cache.seven_day_opus)}${c.reset}`);
+    }
+    if (typeof cache.seven_day_sonnet === 'number') {
+      models.push(`${colFor(cache.seven_day_sonnet)}S${fmtPct(cache.seven_day_sonnet)}${c.reset}`);
+    }
+    if (models.length) {
+      segs.push(`${c.dim}🧠 ${c.reset}` + models.join(`${c.dim}/${c.reset}`));
+    }
   }
   usageSeg = segs.join(`${c.dim} ${c.reset}`);
 })();
 
 const sep = `${c.dim} | ${c.reset}`;
 const parts = [
-  dirSeg,
-  gitSeg,
-  modelSeg,
-  tokSeg,
-  costSeg,
-  linesSeg,
-  usageSeg,
-  clockSeg,
+  CFG.directory && dirSeg,
+  CFG.git && gitSeg,
+  CFG.model && modelSeg,
+  CFG.tokens && tokSeg,
+  CFG.cost && costSeg,
+  CFG.lines && linesSeg,
+  usageSeg, // ya respeta su config internamente (usage5h/usage7d/modelBreakdown)
+  CFG.clock && clockSeg,
 ].filter(Boolean);
 process.stdout.write(parts.join(sep));

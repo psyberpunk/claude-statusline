@@ -1,6 +1,9 @@
 # Caché de uso generado en runtime (no debe versionarse)
 usage-cache.json
 
+# Config personal del usuario (generada por configure.js)
+statusline-config.json
+
 # Sistema
 .DS_Store
 *.log

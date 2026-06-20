@@ -10,7 +10,7 @@ echo "==> Desinstalando claude-statusline de $CLAUDE_DIR"
 
 # 1. Borrar scripts y caché
 removed=0
-for f in statusline.js usage-fetch.js usage-cache.json; do
+for f in statusline.js usage-fetch.js configure.js usage-cache.json statusline-config.json; do
   if [ -f "$CLAUDE_DIR/$f" ]; then
     rm -f "$CLAUDE_DIR/$f"
     echo "    ✓ eliminado $f"
