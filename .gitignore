@@ -1,0 +1,6 @@
+# Caché de uso generado en runtime (no debe versionarse)
+usage-cache.json
+
+# Sistema
+.DS_Store
+*.log
