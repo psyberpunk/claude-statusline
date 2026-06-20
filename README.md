@@ -7,7 +7,7 @@ Muestra en una sola línea: directorio, estado de git, modelo, uso de contexto, 
 ![claude-statusline](assets/statusline.svg)
 
 ```
-📁 ~/mi-proyecto | 🌿 main* ↑2 ↓1 📦1 | 🤖 Opus 4.8 | 🧮 46.1k (23%) | 💰 $0.12 | 📝 +123/-45 | ⏳ 5h 6% ↺2h12m (12:19) 📆 7d 3% ↺4h53m (14:59) 🧠 O7%/S2% | 🕐 10:10
+📁 ~/mi-proyecto | 🌿 main* ↑2 ↓1 📦1 | 🤖 Opus 4.8 | 🧮 115.5k (12%) | 💰 $0.12 | 📝 +123/-45 | ⏳ 5h 6% ↺2h12m (12:19) 📆 7d 3% ↺4h53m (14:59) 🧠 O7%/S2% | 🕐 10:10
 ```
 
 ## Características
@@ -17,7 +17,7 @@ Muestra en una sola línea: directorio, estado de git, modelo, uso de contexto, 
 | 📁 | Directorio actual (relativo a `~`) |
 | 🌿 | Rama git + `*` si hay cambios sin commitear, `↑`/`↓` ahead/behind del upstream, `📦` número de stashes |
 | 🤖 | Modelo de Claude en uso |
-| 🧮 | Tokens del contexto actual + % de la ventana de 200k (verde/amarillo/rojo según llenado) |
+| 🧮 | Tokens del contexto actual + % de la ventana de contexto (verde/amarillo/rojo según llenado) |
 | 💰 | Costo en USD de la sesión |
 | 📝 | Líneas añadidas/eliminadas en la sesión |
 | ⏳ 5h | Uso del límite de 5 horas + cuenta regresiva + hora exacta del reset |
@@ -92,7 +92,7 @@ Todo vive en `statusline.js`. Es un único archivo sin dependencias:
 - Cambia los **colores** en el objeto `c` (códigos ANSI).
 - Cambia los **íconos** directamente en cada segmento.
 - Ajusta el **orden** o quita segmentos en el arreglo `parts` al final del archivo.
-- Cambia `CONTEXT_LIMIT` (200000) o el `TTL` del caché de uso (5 min) según prefieras.
+- Cambia `CONTEXT_LIMIT` (1000000 = 1M; ponlo en 200000 si tu modelo usa ventana de 200k) o el `TTL` del caché de uso (5 min) según prefieras.
 
 ## Licencia
 

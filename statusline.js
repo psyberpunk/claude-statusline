@@ -87,7 +87,7 @@ const modelSeg = `${c.magenta}🤖 ${model}${c.reset}`;
 // --- Consumo de tokens (tamaño actual del contexto) ---
 // Se lee del transcript: el último mensaje del asistente con `usage`.
 let tokSeg = '';
-const CONTEXT_LIMIT = 200000; // ventana de contexto de referencia
+const CONTEXT_LIMIT = 1000000; // ventana de contexto de referencia (1M)
 function fmtTokens(n) {
   if (n >= 1000) return (n / 1000).toFixed(1) + 'k';
   return String(n);
